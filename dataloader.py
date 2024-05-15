@@ -4,14 +4,13 @@ import data.ODIRParser as Reader_odir
 
 import numpy as np
 import torch
+import random
 from utils.gcn_utils import preprocess_features
 from sklearn.model_selection import StratifiedKFold
 
-from functional import drop_feature, drop_edge_weighted, \
+from functional import  drop_edge_weighted, \
     degree_drop_weights, \
-    evc_drop_weights, pr_drop_weights, \
-    drop_feature_weighted_2
-
+    evc_drop_weights, pr_drop_weights \
 
 class dataloader():
     def __init__(self):
@@ -145,32 +144,18 @@ class dataloader():
         return edge_index, edgenet_input
 
     def edge_index2(self, edge_index, pd_ftr_dim, nonimg, n, opt):
-
         edge_index = torch.tensor(edge_index, dtype=torch.long).to(opt.device)
+        def drop_edges(edge_index, p):
+            num_edges = edge_index.shape[1]
+            num_keep = int(p * num_edges)
+            mask = [True] * num_keep + [False] * (num_edges - num_keep)
+            random.shuffle(mask)
+            mask = torch.tensor(mask, dtype=torch.bool)
+            new_edge_index = edge_index[:, mask]
+            return new_edge_index
 
-        if opt.type == 'Degree':
-            drop_weights = degree_drop_weights(edge_index).to(opt.device)
-        elif opt.type == 'PageRank':
-            drop_weights = pr_drop_weights(edge_index, aggr='sink', k=200).to(opt.device)
-        elif opt.type == 'Eigenvector':
-            from torch_geometric.data import Data
-            self.node_ftr = torch.tensor(self.node_ftr, dtype=torch.long).to(opt.device)
-            self.y = torch.tensor(self.y, dtype=torch.long).to(opt.device)
-            data = Data()
-            data.node_ftr = self.node_ftr
-            data.edge_index = edge_index
-            data.y = self.y
-
-            drop_weights = evc_drop_weights(data).to(opt.device)
-            self.node_ftr = self.node_ftr.detach().cpu().numpy()
-            self.y = self.y.detach().cpu().numpy()
-
-        def drop_edge():
-            return drop_edge_weighted(edge_index, drop_weights, p=0.2, threshold=0.7)
-        edge_index = drop_edge()
-
-        edge_index = edge_index.detach().cpu().numpy()
-
+        p = 0.7  # 保留70%的边
+        edge_index = drop_edges(edge_index, p)
         edgenet_input = np.zeros([len(edge_index[0]), 2 * pd_ftr_dim], dtype=np.float32)
         i = 0
         j = 0
@@ -186,7 +171,52 @@ class dataloader():
                 j += 1
                 continue
             break
+
+
         return edge_index, edgenet_input
+
+
+
+    def random_select_and_zero_out(self, node_ftr, p, dim_to_zero, edge_index):
+        num_nodes, num_dims = node_ftr.shape
+        num_selected = int(p * num_nodes)
+        selected_indices = random.sample(range(num_nodes), num_selected)
+        new_node_ftr = np.copy(node_ftr)
+        for index in selected_indices:
+            new_node_ftr[index, dim_to_zero] = 0
+        return new_node_ftr,edge_index
+
+    def drop_feature(self, x, drop_prob, edge_index):
+        drop_mask = torch.empty((x.size(1),), dtype=torch.float32, device=x.device).uniform_(0, 1) < drop_prob
+        x = x.clone()
+        x[:, drop_mask] = 0
+
+        return x, edge_index
+
+    def drop_feature_weighted_2(x, w, p: float, threshold: float = 0.75):
+        w = w / w.mean() * p
+        w = w.where(w < threshold, torch.ones_like(w) * threshold)
+        drop_prob = w
+
+        drop_mask = torch.bernoulli(drop_prob).to(torch.bool)
+
+        x = x.clone()
+        x[:, drop_mask] = 0.
+
+        return x
+
+    def remove_random_nodes_and_edges(self,  x, drop_percent, edge_index):
+
+        num_nodes = x.shape[0]
+
+        drop_num = int(num_nodes * drop_percent)
+
+
+        drop_node_indices = np.random.choice(num_nodes, size=drop_num, replace=False)
+
+        x[drop_node_indices] = 0
+
+        return  x, edge_index
 
 
 class dataloader_adni():
