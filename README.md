@@ -1,7 +1,7 @@
 # Adaptive Composing Augmentations on Multi-modal Graph Convolutional Network for Disease Prediction
 
 ## About
-This is a Pytorch implementation of ACA-GCN.
+This is a Pytorch implementation of ACA-GCN. This project is highly borrowed from [Edge-variational Graph Convolutional Networks for Uncertainty-aware Disease Prediction](https://github.com/SamitHuang/EV_GCN.git) (MICCAI 2020) by Yongxiang Huang and Albert C.S. Chung.
 
 ## Prerequisites
 - `Python 3.7.4+`
@@ -36,7 +36,7 @@ To download the used dataset, please run the following script in the `data` fold
 ```
 python data/fetch_data.py 
 ```
-If you want to train a new model on your own dataset, please change the data loader functions defined in `dataloader.py` accordingly, then run `python train_eval_evgcn.py --train=1`  
+If you want to train a new model on your own dataset, please change the data loader functions defined in `dataloader.py` accordingly, then run `python train_eval.py --train=1`  
 
 ## Inference and Evaluation
 ```
