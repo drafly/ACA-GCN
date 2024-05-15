@@ -5,24 +5,6 @@ import networkx as nx
 from torch_scatter import scatter
 from torch_geometric.utils import to_networkx
 
-def drop_feature(x, drop_prob):
-    drop_mask = torch.empty((x.size(1),), dtype=torch.float32, device=x.device).uniform_(0, 1) < drop_prob
-    x = x.clone()
-    x[:, drop_mask] = 0
-
-    return x
-
-def drop_feature_weighted_2(x, w, p: float, threshold: float = 0.75):
-    w = w / w.mean() * p
-    w = w.where(w < threshold, torch.ones_like(w) * threshold)
-    drop_prob = w
-
-    drop_mask = torch.bernoulli(drop_prob).to(torch.bool)
-
-    x = x.clone()
-    x[:, drop_mask] = 0.
-
-    return x
 
 def drop_edge_weighted(edge_index, edge_weights, p: float, threshold: float = 1.):
     edge_weights = edge_weights / edge_weights.mean() * p
