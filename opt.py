@@ -24,7 +24,8 @@ class OptInit():
         parser.add_argument('--ckpt_path', type=str, default='./save_models', help='checkpoint path to save trained models')
 
         parser.add_argument('--dataset', type=str, default='ABIDE')
-        parser.add_argument('--type', type=str, default='PageRank')
+        parser.add_argument('--type_weight', type=str, default='PageRank')
+        parser.add_argument('--type_node', type=str, default='NO')
 
         args = parser.parse_args()
 
