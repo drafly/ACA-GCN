@@ -57,7 +57,7 @@ if __name__ == '__main__':
             edge_index_EP, edgenet_input_EP = dl.edge_index1(edge_index, pd_ftr_dim, nonimg, n, opt)
         if opt.type_weight == 'Eigenvector':
             edge_index_EP, edgenet_input_EP = dl.edge_index1(edge_index, pd_ftr_dim, nonimg, n, opt)
-        if opt.type_weight == 'REP':
+        if opt.type_node == 'REP':
             edge_index_REP, edgenet_input_REP = dl.edge_index2(edge_index, pd_ftr_dim, nonimg, n, opt)
         if opt.type_node == 'AM':
             p = 0.45
