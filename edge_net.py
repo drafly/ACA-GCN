@@ -30,7 +30,6 @@ class weight(torch.nn.Module):
 
 
         if flag == 1:
-            # EWP
             selected = edge_weight[edge_weight < 0.85]  # 0.85
             n = len(selected)
             idx = torch.nonzero(edge_weight < 0.85).squeeze()
@@ -41,13 +40,11 @@ class weight(torch.nn.Module):
 
 
         if flag == 2:
-            # Adaptive EP
             mask = edge_weight >= 0.85
             edge_index = edge_index[:, mask]
             edge_weight = edge_weight[mask]
 
         if flag == 3:
-            # Random EWP
             n = len(edge_weight)  # 0.85
             n1 = int(0.3 * n)
             al_idx = np.arange(n)
