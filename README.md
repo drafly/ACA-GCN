@@ -45,5 +45,15 @@ python train_eval.py --train=0
 
 ## Reference 
 If you find this code useful in your work, please cite:
-
+```
+@article{han2025adaptive,
+  title={Adaptive composing augmentations on multi-modal graph convolutional network for disease prediction},
+  author={Han, Longfei and Wang, Mengzhen and Zhang, Xiangsen and Li, Wenxin and Li, Haisheng and Huang, Xiankai},
+  journal={Computers and Electrical Engineering},
+  volume={123},
+  pages={110277},
+  year={2025},
+  publisher={Elsevier}
+}
+```
 
